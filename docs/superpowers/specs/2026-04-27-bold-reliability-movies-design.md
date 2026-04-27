@@ -79,6 +79,10 @@ Three layers, communicating through plain frozen dataclasses.
 └─────────────────────────────────────────────────────────┘
 ```
 
+> **Note:** `USER-GITHUB-HANDLE` appears in `pyproject.toml` and the README
+> below as a placeholder. Replace with the actual handle (or org) before
+> first publish.
+
 ### Module layout
 
 ```
@@ -168,9 +172,12 @@ For `bold-reliability-movies bids /path/to/derivatives --renderer mosaic --fps 2
      `nilearn.image.mean_img`, save atomically (temp file + rename), return.
    - For each mean image: `rgb = renderer(mean_img, frame.label)` →
      `(H, W, 3) uint8`.
-   - `encode(rgb_frames, fps, out / f"{group.name}.mp4")` — matplotlib
-     `FuncAnimation` with the `ffmpeg` writer, `libx264`, `yuv420p`
-     (browser-safe).
+   - `encode(rgb_frames, fps, out / f"{group.name}.mp4")` — writes RGB
+     numpy frames to MP4 via ffmpeg (`libx264`, `yuv420p`, browser-safe).
+     Implementation detail (chosen at plan time): `imageio[ffmpeg]` for
+     simplicity, or direct `subprocess.Popen(['ffmpeg', ...])` with
+     raw-video stdin if dep surface needs to stay minimal. The renderer
+     returns numpy arrays — the encoder does not invoke matplotlib.
 4. **Failure handling per group:** any exception inside a group is caught,
    logged with the group name and offending frame; that group is skipped;
    the loop continues. Exit code = 1 if any group failed, 0 otherwise.
@@ -226,9 +233,18 @@ the alias.
 
 Columns: `path` (required, absolute or repo-relative), `label` (required,
 human-readable), `group` (required, output filename stem), `sort_key`
-(optional; if absent, row order is preserved). Lines starting with `#` are
-comments. The BIDS adapter compiles internally to the same shape, so adding
-a non-BIDS source is "write a TSV."
+(optional). When `sort_key` is absent, rows are assigned `sort_key =
+(row_index,)` per group, preserving file order. When present, parsed as a
+tab-or-comma-delimited numeric/string tuple. Lines starting with `#` are
+comments. The BIDS adapter compiles internally to the same shape, so
+adding a non-BIDS source is "write a TSV."
+
+### `brm render` (architectural note)
+
+`brm render <nifti>...` bypasses the discovery layer. The CLI handler
+constructs a single `FrameGroup` inline from the positional NIfTIs and
+`--labels`, then calls the pipeline directly. This is the
+escape-hatch / one-off mode; no `FrameSource` involved.
 
 ### Defaults
 
@@ -414,8 +430,8 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/<you>/bold-reliability-movies"
-Source = "https://github.com/<you>/bold-reliability-movies"
+Homepage = "https://github.com/USER-GITHUB-HANDLE/bold-reliability-movies"
+Source = "https://github.com/USER-GITHUB-HANDLE/bold-reliability-movies"
 
 [project.scripts]
 bold-reliability-movies = "bold_reliability_movies.cli:main"
@@ -472,7 +488,7 @@ pip install --user bold-reliability-movies
 
 ### From source (development)
 \`\`\`bash
-git clone https://github.com/<you>/bold-reliability-movies
+git clone https://github.com/USER-GITHUB-HANDLE/bold-reliability-movies
 cd bold-reliability-movies
 uv sync --dev          # uv flow
 # or
