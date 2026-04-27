@@ -79,10 +79,6 @@ Three layers, communicating through plain frozen dataclasses.
 └─────────────────────────────────────────────────────────┘
 ```
 
-> **Note:** `USER-GITHUB-HANDLE` appears in `pyproject.toml` and the README
-> below as a placeholder. Replace with the actual handle (or org) before
-> first publish.
-
 ### Module layout
 
 ```
@@ -430,8 +426,8 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/USER-GITHUB-HANDLE/bold-reliability-movies"
-Source = "https://github.com/USER-GITHUB-HANDLE/bold-reliability-movies"
+Homepage = "https://github.com/lobennett/bold-reliability-movies"
+Source = "https://github.com/lobennett/bold-reliability-movies"
 
 [project.scripts]
 bold-reliability-movies = "bold_reliability_movies.cli:main"
@@ -488,7 +484,7 @@ pip install --user bold-reliability-movies
 
 ### From source (development)
 \`\`\`bash
-git clone https://github.com/USER-GITHUB-HANDLE/bold-reliability-movies
+git clone https://github.com/lobennett/bold-reliability-movies
 cd bold-reliability-movies
 uv sync --dev          # uv flow
 # or
