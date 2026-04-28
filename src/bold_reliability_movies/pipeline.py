@@ -84,7 +84,8 @@ def make_video(
     use_cache: bool = True,
 ) -> None:
     """Render a single FrameGroup to one MP4."""
-    rgb, kept = _render_frames(group.frames, renderer, cache_dir, use_cache)
+    sorted_frames = sorted(group.frames, key=lambda f: f.sort_key)
+    rgb, kept = _render_frames(sorted_frames, renderer, cache_dir, use_cache)
     n_total = len(group.frames)
     n_kept = len(kept)
     if n_total > 0 and (n_total - n_kept) / n_total > _DROP_THRESHOLD:

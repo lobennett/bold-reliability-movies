@@ -118,3 +118,23 @@ def test_make_videos_skips_group_with_too_few_frames(tmp_path, stub_renderer):
     )
     summary = make_videos([group], renderer=stub_renderer, out_dir=tmp_path, fps=2)
     assert summary.failed == ["g"]
+
+
+def test_make_video_sorts_frames_by_sort_key(make_bold, tmp_path):
+    calls: list[str] = []
+
+    def renderer(img, label):
+        calls.append(label)
+        return np.zeros((16, 16, 3), dtype=np.uint8)
+
+    # Frames inserted in REVERSE sort_key order
+    group = FrameGroup(
+        name="g",
+        frames=[
+            Frame(path=make_bold("c.nii.gz"), label="c", sort_key=(3,)),
+            Frame(path=make_bold("a.nii.gz"), label="a", sort_key=(1,)),
+            Frame(path=make_bold("b.nii.gz"), label="b", sort_key=(2,)),
+        ],
+    )
+    make_video(group, renderer=renderer, out_path=tmp_path / "g.mp4", fps=2)
+    assert calls == ["a", "b", "c"]

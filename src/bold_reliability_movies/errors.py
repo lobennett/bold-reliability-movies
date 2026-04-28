@@ -40,10 +40,6 @@ class GroupRejectedError(BrmError):
     """A FrameGroup was rejected: too many dropped frames or too few usable."""
 
 
-class EmptyDiscoveryError(BrmError):
-    """A FrameSource produced zero FrameGroups."""
-
-
 class UnknownRendererError(BrmError):
     """A renderer name was requested that is not in the in-tree dispatch table."""
 

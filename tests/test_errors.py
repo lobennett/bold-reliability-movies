@@ -1,6 +1,5 @@
 from bold_reliability_movies.errors import (
     BrmError,
-    EmptyDiscoveryError,
     EncodeError,
     GroupRejectedError,
     InconsistentShapesError,
@@ -14,7 +13,6 @@ def test_all_inherit_from_brm_error():
         MissingDependency,
         InconsistentShapesError,
         EncodeError,
-        EmptyDiscoveryError,
         UnknownRendererError,
         GroupRejectedError,
     ):
