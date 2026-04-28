@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import nibabel as nib
 import numpy as np
+import pytest
 
 from bold_reliability_movies.renderers.mosaic import MosaicRenderer
 
@@ -43,6 +44,24 @@ def test_mosaic_label_changes_pixels() -> None:
 
 
 def test_mosaic_custom_grid() -> None:
-    r = MosaicRenderer(n_rows=2, n_cols=3)
-    out = r(_mean_img(), "x")
-    assert out.shape[2] == 3
+    r_default = MosaicRenderer()           # 5×5 grid
+    r_custom = MosaicRenderer(n_rows=2, n_cols=3)
+    img = _mean_img()
+    out_default = r_default(img, "x")
+    out_custom = r_custom(img, "x")
+    # Same fig_size + dpi → same H×W; constructor accepts the custom grid.
+    assert out_default.shape == out_custom.shape
+    assert out_custom.dtype == np.uint8
+    # Custom grid lays out fewer panels — the rendered pixels MUST differ.
+    assert not np.array_equal(out_default, out_custom)
+
+
+def test_mosaic_rejects_4d_input() -> None:
+    rng = np.random.default_rng(0)
+    img4d = nib.Nifti1Image(
+        rng.normal(100, 5, size=(8, 8, 4, 5)).astype(np.float32),
+        np.eye(4),
+    )
+    with pytest.raises(ValueError) as ei:
+        MosaicRenderer()(img4d, "label")
+    assert "3D" in str(ei.value)

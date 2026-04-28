@@ -32,6 +32,11 @@ class MosaicRenderer:
 
     def __call__(self, mean_img: nib.Nifti1Image, label: str) -> npt.NDArray[np.uint8]:
         data = np.asarray(mean_img.get_fdata(), dtype=np.float32)
+        if data.ndim != 3:
+            raise ValueError(
+                f"MosaicRenderer expects a 3D image, got ndim={data.ndim}. "
+                "Pass a mean image, not a 4D BOLD series."
+            )
         n_slices = self.n_rows * self.n_cols
         nz = data.shape[2]
         z_idx = np.linspace(0, nz - 1, n_slices).astype(int)
