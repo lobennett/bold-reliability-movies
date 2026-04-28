@@ -82,6 +82,7 @@ def make_video(
     fps: int,
     cache_dir: Path | None = None,
     use_cache: bool = True,
+    codec: str = "libx264",
 ) -> None:
     """Render a single FrameGroup to one MP4."""
     sorted_frames = sorted(group.frames, key=lambda f: f.sort_key)
@@ -100,7 +101,7 @@ def make_video(
 
     _check_shapes(rgb)
     log.info("encoding group %s (%d frames) → %s", group.name, n_kept, out_path)
-    encode(rgb, fps=fps, out_path=out_path)
+    encode(rgb, fps=fps, out_path=out_path, codec=codec)
 
 
 def make_videos(
@@ -111,6 +112,7 @@ def make_videos(
     fps: int,
     cache_dir: Path | None = None,
     use_cache: bool = True,
+    codec: str = "libx264",
 ) -> RunSummary:
     """Render many FrameGroups; isolate per-group failures."""
     summary = RunSummary()
@@ -125,6 +127,7 @@ def make_videos(
                 fps=fps,
                 cache_dir=cache_dir,
                 use_cache=use_cache,
+                codec=codec,
             )
         except (BrmError, OSError) as exc:
             log.error("group %s failed: %s", group.name, exc, exc_info=True)

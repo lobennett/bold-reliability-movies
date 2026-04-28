@@ -80,6 +80,56 @@ def test_encode_rejects_empty_frame_list(tmp_path: Path) -> None:
         encode([], fps=2, out_path=tmp_path / "out.mp4")
 
 
+def test_encode_libx264_args(monkeypatch, tmp_path: Path) -> None:
+    captured: dict = {}
+
+    def fake_popen(cmd, *args, **kwargs):
+        captured["cmd"] = cmd
+        proc = MagicMock()
+        proc.stdin = MagicMock()
+        proc.wait = MagicMock(return_value=0)
+        proc.stderr = MagicMock()
+        proc.stderr.read = MagicMock(return_value=b"")
+        return proc
+
+    monkeypatch.setattr(subprocess, "Popen", fake_popen)
+    monkeypatch.setattr("shutil.which", lambda name: "/usr/bin/ffmpeg")
+    encode(_frames(), fps=2, out_path=tmp_path / "x.mp4", codec="libx264")
+    cmd = captured["cmd"]
+    assert "libx264" in cmd
+    assert "-crf" in cmd
+    assert "-pix_fmt" in cmd and "yuv420p" in cmd
+
+
+def test_encode_mpeg4_args(monkeypatch, tmp_path: Path) -> None:
+    captured: dict = {}
+
+    def fake_popen(cmd, *args, **kwargs):
+        captured["cmd"] = cmd
+        proc = MagicMock()
+        proc.stdin = MagicMock()
+        proc.wait = MagicMock(return_value=0)
+        proc.stderr = MagicMock()
+        proc.stderr.read = MagicMock(return_value=b"")
+        return proc
+
+    monkeypatch.setattr(subprocess, "Popen", fake_popen)
+    monkeypatch.setattr("shutil.which", lambda name: "/usr/bin/ffmpeg")
+    encode(_frames(), fps=2, out_path=tmp_path / "x.mp4", codec="mpeg4")
+    cmd = captured["cmd"]
+    assert "mpeg4" in cmd
+    assert "-q:v" in cmd
+    # libx264-specific flags should NOT appear
+    assert "libx264" not in cmd
+    assert "-crf" not in cmd
+
+
+def test_encode_unknown_codec_raises(tmp_path: Path) -> None:
+    with pytest.raises(ValueError) as ei:
+        encode(_frames(), fps=2, out_path=tmp_path / "x.mp4", codec="vp9")
+    assert "vp9" in str(ei.value)
+
+
 @pytest.mark.slow
 def test_encode_real_ffmpeg(tmp_path: Path) -> None:
     """End-to-end real ffmpeg encode. Run with: pytest -m slow"""

@@ -52,6 +52,7 @@ def _build_parser() -> argparse.ArgumentParser:
     p_bids.add_argument("--cache", dest="cache", action="store_true", default=True)
     p_bids.add_argument("--no-cache", dest="cache", action="store_false")
     p_bids.add_argument("--cache-dir", type=Path, default=None)
+    p_bids.add_argument("--codec", choices=("libx264", "mpeg4"), default="libx264")
 
     # list ----------------------------------------------------------------
     p_list = sub.add_parser("list", help="discover from a TSV manifest")
@@ -62,6 +63,7 @@ def _build_parser() -> argparse.ArgumentParser:
     p_list.add_argument("--cache", dest="cache", action="store_true", default=True)
     p_list.add_argument("--no-cache", dest="cache", action="store_false")
     p_list.add_argument("--cache-dir", type=Path, default=None)
+    p_list.add_argument("--codec", choices=("libx264", "mpeg4"), default="libx264")
 
     # render --------------------------------------------------------------
     p_render = sub.add_parser("render", help="render a single video from positional NIfTIs")
@@ -73,6 +75,7 @@ def _build_parser() -> argparse.ArgumentParser:
     p_render.add_argument("--cache", dest="cache", action="store_true", default=True)
     p_render.add_argument("--no-cache", dest="cache", action="store_false")
     p_render.add_argument("--cache-dir", type=Path, default=None)
+    p_render.add_argument("--codec", choices=("libx264", "mpeg4"), default="libx264")
     return parser
 
 
@@ -127,6 +130,7 @@ def _cmd_bids(args: argparse.Namespace) -> int:
         fps=args.fps,
         cache_dir=args.cache_dir,
         use_cache=args.cache,
+        codec=args.codec,
     )
     return 0 if not summary.failed else 1
 
@@ -147,6 +151,7 @@ def _cmd_list(args: argparse.Namespace) -> int:
         fps=args.fps,
         cache_dir=args.cache_dir,
         use_cache=args.cache,
+        codec=args.codec,
     )
     return 0 if not summary.failed else 1
 
@@ -176,6 +181,7 @@ def _cmd_render(args: argparse.Namespace) -> int:
             fps=args.fps,
             cache_dir=args.cache_dir,
             use_cache=args.cache,
+            codec=args.codec,
         )
     except BrmError as exc:
         print(str(exc), file=sys.stderr)

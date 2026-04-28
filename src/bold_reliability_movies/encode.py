@@ -39,8 +39,13 @@ def encode(
     frames: Sequence[npt.NDArray[Any]],
     fps: int,
     out_path: Path,
+    *,
+    codec: str = "libx264",
 ) -> None:
     """Encode RGB frames to MP4 at out_path. All frames must share (H, W, 3) shape."""
+    if codec not in ("libx264", "mpeg4"):
+        raise ValueError(f"unsupported codec {codec!r}; valid: libx264, mpeg4")
+
     if len(frames) == 0:
         raise ValueError("encode() requires at least one frame")
 
@@ -50,6 +55,12 @@ def encode(
         raise ValueError(f"frames must be (H, W, 3) RGB; got {frames[0].shape}")
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
+
+    if codec == "libx264":
+        codec_flags = ["-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "18"]
+    else:
+        codec_flags = ["-c:v", "mpeg4", "-q:v", "5"]
+
     cmd = [
         ffmpeg, "-y",
         "-loglevel", "error",
@@ -59,9 +70,7 @@ def encode(
         "-pix_fmt", "rgb24",
         "-r", str(fps),
         "-i", "-",
-        "-c:v", "libx264",
-        "-pix_fmt", "yuv420p",
-        "-crf", "18",
+        *codec_flags,
         str(out_path),
     ]
     log.debug("ffmpeg cmd: %s", " ".join(cmd))

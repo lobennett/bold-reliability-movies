@@ -89,3 +89,11 @@ def test_cli_render_subcommand(tmp_path: Path, make_bold):
     out = tmp_path / "render.mp4"
     rc = main(["render", str(a), str(b), "--out", str(out), "--no-cache"])
     assert rc == 0
+
+
+def test_cli_render_with_mpeg4_codec(tmp_path: Path, make_bold):
+    a = make_bold("a.nii.gz")
+    b = make_bold("b.nii.gz")
+    out = tmp_path / "render.mp4"
+    rc = main(["render", str(a), str(b), "--out", str(out), "--no-cache", "--codec", "mpeg4"])
+    assert rc == 0

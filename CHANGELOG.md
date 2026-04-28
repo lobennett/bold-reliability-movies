@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-04-28
+
+### Added
+- `--codec {libx264,mpeg4}` CLI flag and `codec` kwarg on `encode`, `make_video`, `make_videos`. Default remains `libx264`. Use `mpeg4` on systems where ffmpeg lacks libx264 (e.g. Sherlock HPC modules).
+
+### Fixed
+- Encoder now fails with a clear `ValueError` on unsupported codec strings instead of relying on ffmpeg to error.
+
 ## [0.1.0] - 2026-04-27
 
 ### Added

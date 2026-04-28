@@ -59,4 +59,4 @@ def test_public_api_reexports():
     assert hasattr(brm, "TripletRenderer")
     assert hasattr(brm, "FmriprepFrameSource")
     assert hasattr(brm, "ManifestFrameSource")
-    assert brm.__version__ == "0.1.0"
+    assert brm.__version__ == "0.1.1"
