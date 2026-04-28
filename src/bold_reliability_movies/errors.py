@@ -36,6 +36,10 @@ class EncodeError(BrmError):
     """ffmpeg encoding failed."""
 
 
+class GroupRejectedError(BrmError):
+    """A FrameGroup was rejected: too many dropped frames or too few usable."""
+
+
 class EmptyDiscoveryError(BrmError):
     """A FrameSource produced zero FrameGroups."""
 

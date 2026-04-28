@@ -11,7 +11,7 @@ from typing import Any
 import numpy.typing as npt
 
 from bold_reliability_movies.encode import encode
-from bold_reliability_movies.errors import InconsistentShapesError
+from bold_reliability_movies.errors import BrmError, GroupRejectedError, InconsistentShapesError
 from bold_reliability_movies.mean_cache import compute_mean
 from bold_reliability_movies.types import Frame, FrameGroup, Renderer
 
@@ -88,12 +88,12 @@ def make_video(
     n_total = len(group.frames)
     n_kept = len(kept)
     if n_total > 0 and (n_total - n_kept) / n_total > _DROP_THRESHOLD:
-        raise RuntimeError(
+        raise GroupRejectedError(
             f"group {group.name!r}: {n_total - n_kept}/{n_total} frames failed "
             f"(threshold {_DROP_THRESHOLD})"
         )
     if n_kept < _MIN_FRAMES:
-        raise RuntimeError(
+        raise GroupRejectedError(
             f"group {group.name!r}: only {n_kept} usable frame(s); need >= {_MIN_FRAMES}"
         )
 
@@ -125,8 +125,8 @@ def make_videos(
                 cache_dir=cache_dir,
                 use_cache=use_cache,
             )
-        except Exception as exc:
-            log.error("group %s failed: %s", group.name, exc)
+        except (BrmError, OSError) as exc:
+            log.error("group %s failed: %s", group.name, exc, exc_info=True)
             summary.failed.append(group.name)
         else:
             summary.succeeded.append(group.name)

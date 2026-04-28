@@ -2,6 +2,7 @@ from bold_reliability_movies.errors import (
     BrmError,
     EmptyDiscoveryError,
     EncodeError,
+    GroupRejectedError,
     InconsistentShapesError,
     MissingDependency,
     UnknownRendererError,
@@ -15,6 +16,7 @@ def test_all_inherit_from_brm_error():
         EncodeError,
         EmptyDiscoveryError,
         UnknownRendererError,
+        GroupRejectedError,
     ):
         assert issubclass(cls, BrmError)
 
