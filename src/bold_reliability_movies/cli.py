@@ -16,7 +16,7 @@ from bold_reliability_movies.errors import (
 )
 from bold_reliability_movies.pipeline import make_video, make_videos
 from bold_reliability_movies.renderers import get_renderer, list_renderers
-from bold_reliability_movies.types import Frame, FrameGroup
+from bold_reliability_movies.types import Frame, FrameGroup, Renderer
 
 log = logging.getLogger(__name__)
 
@@ -92,24 +92,31 @@ def _setup_logging(verbose: bool, quiet: bool) -> None:
         level = logging.DEBUG
     if quiet:
         level = logging.WARNING
-    logging.basicConfig(level=level, format="%(levelname)s %(name)s: %(message)s")
+    logging.basicConfig(level=level, format="%(levelname)s %(name)s: %(message)s", force=True)
+
+
+def _get_renderer_or_print(name: str) -> Renderer | None:
+    try:
+        return get_renderer(name)
+    except UnknownRendererError as exc:
+        print(str(exc), file=sys.stderr)
+        return None
 
 
 def _cmd_bids(args: argparse.Namespace) -> int:
-    try:
-        renderer = get_renderer(args.renderer)
-    except UnknownRendererError as exc:
-        print(str(exc), file=sys.stderr)
+    renderer = _get_renderer_or_print(args.renderer)
+    if renderer is None:
         return 2
+    filters = _parse_filters(args.filter)
     src = FmriprepFrameSource(
         deriv_dir=args.deriv_dir,
         group_by=args.group_by,
-        filters=_parse_filters(args.filter),
+        filters=filters,
     )
     groups = src.discover()
     if not groups:
         print(
-            f"No matching BOLD files in {args.deriv_dir} (filters={_parse_filters(args.filter)}).",
+            f"No matching BOLD files in {args.deriv_dir} (filters={filters}).",
             file=sys.stderr,
         )
         return 3
@@ -125,10 +132,8 @@ def _cmd_bids(args: argparse.Namespace) -> int:
 
 
 def _cmd_list(args: argparse.Namespace) -> int:
-    try:
-        renderer = get_renderer(args.renderer)
-    except UnknownRendererError as exc:
-        print(str(exc), file=sys.stderr)
+    renderer = _get_renderer_or_print(args.renderer)
+    if renderer is None:
         return 2
     src = ManifestFrameSource(tsv_path=args.manifest)
     groups = src.discover()
@@ -147,10 +152,8 @@ def _cmd_list(args: argparse.Namespace) -> int:
 
 
 def _cmd_render(args: argparse.Namespace) -> int:
-    try:
-        renderer = get_renderer(args.renderer)
-    except UnknownRendererError as exc:
-        print(str(exc), file=sys.stderr)
+    renderer = _get_renderer_or_print(args.renderer)
+    if renderer is None:
         return 2
     paths = [Path(p) for p in args.niftis]
     labels = args.labels if args.labels is not None else [p.stem for p in paths]

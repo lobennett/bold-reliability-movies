@@ -2,8 +2,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
 from bold_reliability_movies.discovery.fmriprep import FmriprepFrameSource
 
 
