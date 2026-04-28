@@ -57,6 +57,7 @@ def fake_fmriprep_tree(tmp_path: Path) -> Path:
         ("sub-s01", "ses-01", "task-rest", 2),
         ("sub-s01", "ses-02", "task-stroop", 1),
         ("sub-s02", "ses-01", "task-rest", 1),
+        ("sub-s02", "ses-01", "task-rest", 2),
     ]
     for sub, ses, task, run in layout:
         d = root / sub / ses / "func"

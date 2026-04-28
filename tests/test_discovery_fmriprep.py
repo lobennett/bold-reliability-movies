@@ -49,7 +49,7 @@ def test_discovery_group_by_none_returns_one_group(fake_fmriprep_tree: Path):
     groups = src.discover()
     assert len(groups) == 1
     assert groups[0].name == "all"
-    assert len(groups[0].frames) == 4
+    assert len(groups[0].frames) == 5
 
 
 def test_discovery_skips_unparseable_filenames(tmp_path: Path):
