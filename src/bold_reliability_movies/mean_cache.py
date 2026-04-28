@@ -9,6 +9,7 @@ caller still gets the in-memory mean.
 from __future__ import annotations
 
 import logging
+import os
 import tempfile
 from pathlib import Path
 
@@ -42,9 +43,7 @@ def _atomic_write(img: nib.Nifti1Image, dest: Path) -> None:
     fd, tmp_name = tempfile.mkstemp(
         suffix=".nii.gz", prefix=".tmp.", dir=str(dest.parent)
     )
-    import os as _os
-
-    _os.close(fd)
+    os.close(fd)
     tmp = Path(tmp_name)
     try:
         nib.save(img, str(tmp))
@@ -68,7 +67,10 @@ def compute_mean(
 
     cache = _cache_path_for(source, cache_dir)
     if _cache_is_fresh(cache, source):
-        return nib.load(str(cache))  # type: ignore[return-value]
+        raw = nib.load(str(cache))
+        if not isinstance(raw, nib.Nifti1Image):
+            raise TypeError(f"Cached file is not Nifti1Image: {cache}")
+        return raw
 
     img = _compute_from_disk(source)
     try:
