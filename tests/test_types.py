@@ -44,3 +44,19 @@ def test_frame_source_protocol_accepts_class_with_discover():
             return []
 
     assert isinstance(MySource(), FrameSource)
+
+
+def test_public_api_reexports():
+    import bold_reliability_movies as brm
+
+    assert hasattr(brm, "make_video")
+    assert hasattr(brm, "make_videos")
+    assert hasattr(brm, "Frame")
+    assert hasattr(brm, "FrameGroup")
+    assert hasattr(brm, "Renderer")
+    assert hasattr(brm, "FrameSource")
+    assert hasattr(brm, "MosaicRenderer")
+    assert hasattr(brm, "TripletRenderer")
+    assert hasattr(brm, "FmriprepFrameSource")
+    assert hasattr(brm, "ManifestFrameSource")
+    assert brm.__version__ == "0.1.0"
