@@ -7,8 +7,10 @@ import shutil
 import subprocess
 from collections.abc import Sequence
 from pathlib import Path
+from typing import Any
 
 import numpy as np
+import numpy.typing as npt
 
 from bold_reliability_movies.errors import EncodeError, MissingDependency
 
@@ -34,7 +36,7 @@ def probe_ffmpeg() -> str:
 
 
 def encode(
-    frames: Sequence[np.ndarray[tuple[int, ...], np.dtype[np.uint8]]],
+    frames: Sequence[npt.NDArray[Any]],
     fps: int,
     out_path: Path,
 ) -> None:
@@ -63,7 +65,12 @@ def encode(
         str(out_path),
     ]
     log.debug("ffmpeg cmd: %s", " ".join(cmd))
-    proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+    proc = subprocess.Popen(
+        cmd,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.PIPE,
+    )
     if proc.stdin is None:
         raise RuntimeError("subprocess stdin not piped")
     try:
