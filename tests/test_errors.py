@@ -1,11 +1,9 @@
-import pytest
-
 from bold_reliability_movies.errors import (
     BrmError,
-    MissingDependency,
-    InconsistentShapesError,
-    EncodeError,
     EmptyDiscoveryError,
+    EncodeError,
+    InconsistentShapesError,
+    MissingDependency,
     UnknownRendererError,
 )
 
@@ -45,3 +43,5 @@ def test_unknown_renderer_lists_available():
     assert "flatmap" in msg
     assert "mosaic" in msg
     assert "triplet" in msg
+    assert err.name == "flatmap"
+    assert err.available == ["mosaic", "triplet"]
