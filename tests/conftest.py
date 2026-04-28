@@ -11,8 +11,9 @@ import pytest
 
 
 def _make_bold(path: Path, shape: tuple[int, int, int, int] = (8, 8, 4, 5)) -> Path:
-    """Write a synthetic 4D BOLD NIfTI with a deterministic ramp signal."""
-    rng = np.random.default_rng(seed=hash(str(path)) % (2**32))
+    """Write a synthetic 4D BOLD NIfTI with a deterministic random signal."""
+    seed = int.from_bytes(str(path).encode(), "little") % (2**32)
+    rng = np.random.default_rng(seed=seed)
     base = rng.normal(loc=100, scale=2, size=shape).astype(np.float32)
     affine = np.eye(4, dtype=np.float32)
     nib.save(nib.Nifti1Image(base, affine), str(path))
@@ -71,7 +72,7 @@ def stub_renderer() -> Callable[..., np.ndarray]:
 
     def _renderer(mean_img: nib.Nifti1Image, label: str) -> np.ndarray:
         frame = np.zeros((16, 16, 3), dtype=np.uint8)
-        frame[0, 0, 0] = hash(label) % 256
+        frame[0, 0, 0] = int.from_bytes(label.encode()[:4], "little") % 256
         return frame
 
     return _renderer
