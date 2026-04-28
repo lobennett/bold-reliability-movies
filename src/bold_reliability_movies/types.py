@@ -4,10 +4,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
-import nibabel as nib
-import numpy as np
+if TYPE_CHECKING:
+    import nibabel as nib
+    import numpy as np
 
 
 @dataclass(frozen=True)
@@ -42,7 +43,7 @@ class Renderer(Protocol):
     single video; (H, W, 3) uint8 arrays only.
     """
 
-    def __call__(self, mean_img: nib.Nifti1Image, label: str) -> np.ndarray:
+    def __call__(self, mean_img: nib.Nifti1Image, label: str) -> np.ndarray[Any, Any]:
         ...
 
 

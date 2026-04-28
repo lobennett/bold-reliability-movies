@@ -33,7 +33,8 @@ def test_renderer_protocol_accepts_callable():
     def renderer(mean_img, label):  # signature only
         return np.zeros((4, 4, 3), dtype=np.uint8)
 
-    # Protocols are runtime-checkable; callables match the __call__ signature.
+    # runtime_checkable structural check: looks for __call__ attribute name,
+    # NOT its signature. A function with the wrong arg count would also pass.
     assert isinstance(renderer, Renderer)
 
 
