@@ -52,7 +52,7 @@ def _build_parser() -> argparse.ArgumentParser:
     p_bids.add_argument("--cache", dest="cache", action="store_true", default=True)
     p_bids.add_argument("--no-cache", dest="cache", action="store_false")
     p_bids.add_argument("--cache-dir", type=Path, default=None)
-    p_bids.add_argument("--codec", choices=("libx264", "mpeg4"), default="libx264")
+    p_bids.add_argument("--codec", choices=("libx264", "mpeg4", "gif"), default="libx264")
 
     # list ----------------------------------------------------------------
     p_list = sub.add_parser("list", help="discover from a TSV manifest")
@@ -63,7 +63,7 @@ def _build_parser() -> argparse.ArgumentParser:
     p_list.add_argument("--cache", dest="cache", action="store_true", default=True)
     p_list.add_argument("--no-cache", dest="cache", action="store_false")
     p_list.add_argument("--cache-dir", type=Path, default=None)
-    p_list.add_argument("--codec", choices=("libx264", "mpeg4"), default="libx264")
+    p_list.add_argument("--codec", choices=("libx264", "mpeg4", "gif"), default="libx264")
 
     # render --------------------------------------------------------------
     p_render = sub.add_parser("render", help="render a single video from positional NIfTIs")
@@ -75,7 +75,7 @@ def _build_parser() -> argparse.ArgumentParser:
     p_render.add_argument("--cache", dest="cache", action="store_true", default=True)
     p_render.add_argument("--no-cache", dest="cache", action="store_false")
     p_render.add_argument("--cache-dir", type=Path, default=None)
-    p_render.add_argument("--codec", choices=("libx264", "mpeg4"), default="libx264")
+    p_render.add_argument("--codec", choices=("libx264", "mpeg4", "gif"), default="libx264")
     return parser
 
 

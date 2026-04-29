@@ -57,6 +57,17 @@ brm render run1.nii.gz run2.nii.gz run3.nii.gz --out movie.mp4 \
     --labels "ses-01 run-1" "ses-01 run-2" "ses-02 run-1"
 ```
 
+## Example output
+
+The animation below was produced by `examples/synthetic_demo.py` — synthetic 4D NIfTIs with a Gaussian blob that drifts position across runs, mosaic renderer, 2 fps, GIF codec.
+
+![Synthetic demo](examples/output/synthetic_demo.gif)
+
+To regenerate locally:
+```bash
+uv run python examples/synthetic_demo.py
+```
+
 ## Manifest format (`brm list`)
 
 ```

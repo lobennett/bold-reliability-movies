@@ -1,4 +1,4 @@
-"""Orchestration: turn FrameGroups into MP4 files."""
+"""Orchestration: turn FrameGroups into video files."""
 
 from __future__ import annotations
 
@@ -22,6 +22,10 @@ log = logging.getLogger(__name__)
 # the remaining frames are encoded.
 _DROP_THRESHOLD = 0.5
 _MIN_FRAMES = 2
+
+
+def _suffix_for(codec: str) -> str:
+    return ".gif" if codec == "gif" else ".mp4"
 
 
 @dataclass
@@ -118,7 +122,7 @@ def make_videos(
     summary = RunSummary()
     out_dir.mkdir(parents=True, exist_ok=True)
     for group in groups:
-        out_path = out_dir / f"{group.name}.mp4"
+        out_path = out_dir / f"{group.name}{_suffix_for(codec)}"
         try:
             make_video(
                 group,

@@ -120,6 +120,20 @@ def test_make_videos_skips_group_with_too_few_frames(tmp_path, stub_renderer):
     assert summary.failed == ["g"]
 
 
+def test_make_videos_gif_codec_writes_gif_suffix(make_bold, stub_renderer, tmp_path):
+    group = FrameGroup(
+        name="g",
+        frames=[
+            Frame(path=make_bold("a.nii.gz"), label="a", sort_key=(1,)),
+            Frame(path=make_bold("b.nii.gz"), label="b", sort_key=(2,)),
+        ],
+    )
+    summary = make_videos(
+        [group], renderer=stub_renderer, out_dir=tmp_path, fps=2, codec="gif"
+    )
+    assert summary.succeeded == ["g"]
+
+
 def test_make_video_sorts_frames_by_sort_key(make_bold, tmp_path):
     calls: list[str] = []
 

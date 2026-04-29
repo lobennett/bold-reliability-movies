@@ -1,4 +1,4 @@
-"""MP4 encoder: pipes raw RGB frames into a system ffmpeg subprocess."""
+"""Video encoder: pipes raw RGB frames into a system ffmpeg subprocess."""
 
 from __future__ import annotations
 
@@ -42,9 +42,9 @@ def encode(
     *,
     codec: str = "libx264",
 ) -> None:
-    """Encode RGB frames to MP4 at out_path. All frames must share (H, W, 3) shape."""
-    if codec not in ("libx264", "mpeg4"):
-        raise ValueError(f"unsupported codec {codec!r}; valid: libx264, mpeg4")
+    """Encode RGB frames to a video at out_path. All frames must share (H, W, 3) shape."""
+    if codec not in ("libx264", "mpeg4", "gif"):
+        raise ValueError(f"unsupported codec {codec!r}; valid: libx264, mpeg4, gif")
 
     if len(frames) == 0:
         raise ValueError("encode() requires at least one frame")
@@ -56,11 +56,6 @@ def encode(
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
-    if codec == "libx264":
-        codec_flags = ["-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "18"]
-    else:
-        codec_flags = ["-c:v", "mpeg4", "-q:v", "5"]
-
     cmd = [
         ffmpeg, "-y",
         "-loglevel", "error",
@@ -70,9 +65,16 @@ def encode(
         "-pix_fmt", "rgb24",
         "-r", str(fps),
         "-i", "-",
-        *codec_flags,
-        str(out_path),
     ]
+    if codec == "libx264":
+        cmd.extend(["-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "18"])
+    elif codec == "mpeg4":
+        cmd.extend(["-c:v", "mpeg4", "-q:v", "5"])
+    elif codec == "gif":
+        cmd.extend(["-loop", "0"])
+    else:
+        raise ValueError(f"unsupported codec {codec!r}; valid: libx264, mpeg4, gif")
+    cmd.append(str(out_path))
     log.debug("ffmpeg cmd: %s", " ".join(cmd))
     proc = subprocess.Popen(
         cmd,

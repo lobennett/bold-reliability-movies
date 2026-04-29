@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-04-28
+
+### Added
+- `--codec gif` for universal viewer compatibility (browsers, VS Code preview, GitHub README rendering). Pipeline uses `.gif` suffix for gif codec (vs `.mp4` for libx264/mpeg4).
+- `examples/synthetic_demo.py` + committed `examples/output/synthetic_demo.gif` showing what the package produces. Synthetic data (Gaussian blob drifting across runs) so no subject brain data is redistributed.
+
 ## [0.1.1] - 2026-04-28
 
 ### Added

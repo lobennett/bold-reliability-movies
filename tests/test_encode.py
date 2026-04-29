@@ -124,6 +124,30 @@ def test_encode_mpeg4_args(monkeypatch, tmp_path: Path) -> None:
     assert "-crf" not in cmd
 
 
+def test_encode_gif_args(monkeypatch, tmp_path: Path) -> None:
+    captured: dict = {}
+
+    def fake_popen(cmd, *args, **kwargs):
+        captured["cmd"] = cmd
+        proc = MagicMock()
+        proc.stdin = MagicMock()
+        proc.wait = MagicMock(return_value=0)
+        proc.stderr = MagicMock()
+        proc.stderr.read = MagicMock(return_value=b"")
+        return proc
+
+    monkeypatch.setattr(subprocess, "Popen", fake_popen)
+    monkeypatch.setattr("shutil.which", lambda name: "/usr/bin/ffmpeg")
+    encode(_frames(), fps=2, out_path=tmp_path / "x.gif", codec="gif")
+    cmd = captured["cmd"]
+    assert "-loop" in cmd
+    assert "0" in cmd
+    # GIF should NOT have codec-specific video flags
+    assert "libx264" not in cmd
+    assert "-crf" not in cmd
+    assert "-q:v" not in cmd
+
+
 def test_encode_unknown_codec_raises(tmp_path: Path) -> None:
     with pytest.raises(ValueError) as ei:
         encode(_frames(), fps=2, out_path=tmp_path / "x.mp4", codec="vp9")
