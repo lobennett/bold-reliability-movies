@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-__version__ = "0.1.2"
+__version__ = "0.1.3"
 
 from bold_reliability_movies.discovery.fmriprep import FmriprepFrameSource
 from bold_reliability_movies.discovery.manifest import ManifestFrameSource

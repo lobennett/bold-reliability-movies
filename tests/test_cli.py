@@ -11,6 +11,9 @@ from bold_reliability_movies.cli import main
 
 @pytest.fixture(autouse=True)
 def _mock_ffmpeg(monkeypatch):
+    import sys
+
+    monkeypatch.setitem(sys.modules, "imageio_ffmpeg", None)
     monkeypatch.setattr("shutil.which", lambda name: "/usr/bin/ffmpeg")
 
     def fake_popen(cmd, *args, **kwargs):

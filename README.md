@@ -59,13 +59,24 @@ brm render run1.nii.gz run2.nii.gz run3.nii.gz --out movie.mp4 \
 
 ## Example output
 
-The animation below was produced by `examples/synthetic_demo.py` — synthetic 4D NIfTIs with a Gaussian blob that drifts position across runs, mosaic renderer, 2 fps, GIF codec.
+40 frames cycling through the per-session mean BOLD of NSD subj01 (Natural Scenes Dataset, 1.8 mm, ~1 year of scanning). Look for coverage shifts, intensity drift, and between-session alignment.
 
-![Synthetic demo](examples/output/synthetic_demo.gif)
+[![NSD subj01 reliability across 40 sessions](examples/output/nsd_subj01.gif)](examples/output/nsd_subj01.mp4)
+
+(GIF preview shown above. Full-quality MP4: [`examples/output/nsd_subj01.mp4`](examples/output/nsd_subj01.mp4).)
 
 To regenerate locally:
 ```bash
-uv run python examples/synthetic_demo.py
+# Download data once (~32 MB)
+mkdir -p examples/.nsd_cache
+aws s3 cp --no-sign-request --recursive \
+    --exclude "*" --include "mean_session*.nii.gz" \
+    s3://natural-scenes-dataset/nsddata/ppdata/subj01/func1pt8mm/ \
+    examples/.nsd_cache/
+
+# Generate both mp4 and gif (requires bold-reliability-movies[mp4] for libx264)
+uv run python examples/nsd_demo.py
+uv run python examples/nsd_demo.py --out examples/output/nsd_subj01.gif --codec gif
 ```
 
 ## Manifest format (`brm list`)

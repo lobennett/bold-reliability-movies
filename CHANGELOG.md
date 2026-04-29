@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.3] - 2026-04-28
+
+### Added
+- Optional `[mp4]` extra: `pip install bold-reliability-movies[mp4]` installs `imageio-ffmpeg`, which provides a bundled libx264-enabled ffmpeg binary. Lets `--codec libx264` (the default) produce real H.264 mp4s on systems where the system ffmpeg lacks libx264 (e.g. HPC modules).
+- `examples/nsd_demo.py` + `examples/output/nsd_subj01.mp4` — animation built from Kendrick Kay's Natural Scenes Dataset subj01 per-session means, demonstrating the package on real public neuroimaging data.
+
+### Changed
+- `probe_ffmpeg()` now prefers `imageio_ffmpeg.get_ffmpeg_exe()` if importable, falling back to `shutil.which("ffmpeg")`.
+- Removed `examples/synthetic_demo.py` (drifting Gaussian blob) — superseded by the NSD demo, which actually demonstrates what reliability movies are useful for.
+
 ## [0.1.2] - 2026-04-28
 
 ### Added

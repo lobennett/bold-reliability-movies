@@ -26,11 +26,25 @@ _INSTALL_HINTS = (
 
 
 def probe_ffmpeg() -> str:
+    """Return path to an ffmpeg binary.
+
+    Order:
+    1. imageio-ffmpeg's bundled binary (if installed) — has libx264 baked in.
+    2. shutil.which("ffmpeg") — uses whatever's on PATH.
+    """
+    try:
+        import imageio_ffmpeg  # type: ignore[import-untyped]
+
+        return imageio_ffmpeg.get_ffmpeg_exe()  # type: ignore[no-any-return]
+    except ImportError:
+        pass
     path = shutil.which("ffmpeg")
     if path is None:
         raise MissingDependency(
-            "ffmpeg not found on PATH (required to encode MP4 videos).\n"
+            "ffmpeg not found on PATH (required to encode videos).\n"
             + _INSTALL_HINTS
+            + "\n\nFor a bundled libx264-enabled ffmpeg (recommended):\n"
+            + "  pip install bold-reliability-movies[mp4]"
         )
     return path
 

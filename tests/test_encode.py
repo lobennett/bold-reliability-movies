@@ -12,15 +12,61 @@ from bold_reliability_movies.errors import EncodeError, MissingDependency
 
 
 def test_probe_ffmpeg_returns_path(monkeypatch) -> None:
+    import sys
+
+    monkeypatch.setitem(sys.modules, "imageio_ffmpeg", None)
     monkeypatch.setattr("shutil.which", lambda name: "/usr/bin/ffmpeg")
     assert probe_ffmpeg() == "/usr/bin/ffmpeg"
 
 
 def test_probe_ffmpeg_raises_when_missing(monkeypatch) -> None:
+    import sys
+
+    monkeypatch.setitem(sys.modules, "imageio_ffmpeg", None)
     monkeypatch.setattr("shutil.which", lambda name: None)
     with pytest.raises(MissingDependency) as ei:
         probe_ffmpeg()
     assert "ffmpeg" in str(ei.value).lower()
+
+
+def test_probe_ffmpeg_prefers_imageio_ffmpeg(monkeypatch) -> None:
+    """When imageio_ffmpeg is importable, prefer its bundled binary."""
+    import sys
+    import types
+
+    fake_module = types.ModuleType("imageio_ffmpeg")
+    fake_module.get_ffmpeg_exe = lambda: "/fake/imageio/ffmpeg"  # type: ignore[attr-defined]
+    monkeypatch.setitem(sys.modules, "imageio_ffmpeg", fake_module)
+
+    # shutil.which would return something else, but we should never fall through
+    monkeypatch.setattr("shutil.which", lambda name: "/system/ffmpeg")
+
+    assert probe_ffmpeg() == "/fake/imageio/ffmpeg"
+
+
+def test_probe_ffmpeg_falls_back_to_system(monkeypatch) -> None:
+    """When imageio_ffmpeg is NOT installed, fall back to shutil.which."""
+    import sys
+
+    # Ensure imageio_ffmpeg import fails
+    monkeypatch.setitem(sys.modules, "imageio_ffmpeg", None)
+    monkeypatch.setattr("shutil.which", lambda name: "/usr/bin/ffmpeg")
+
+    assert probe_ffmpeg() == "/usr/bin/ffmpeg"
+
+
+def test_probe_ffmpeg_missing_message_mentions_mp4_extra(monkeypatch) -> None:
+    """Error message should hint at the [mp4] extra when nothing is found."""
+    import sys
+
+    monkeypatch.setitem(sys.modules, "imageio_ffmpeg", None)
+    monkeypatch.setattr("shutil.which", lambda name: None)
+
+    with pytest.raises(MissingDependency) as ei:
+        probe_ffmpeg()
+    msg = str(ei.value)
+    assert "ffmpeg" in msg.lower()
+    assert "[mp4]" in msg
 
 
 def _frames(n: int = 3, h: int = 8, w: int = 8) -> list[np.ndarray]:
@@ -28,6 +74,8 @@ def _frames(n: int = 3, h: int = 8, w: int = 8) -> list[np.ndarray]:
 
 
 def test_encode_invokes_ffmpeg_with_correct_args(monkeypatch, tmp_path: Path) -> None:
+    import sys
+
     captured: dict[str, object] = {}
 
     def fake_popen(cmd, *args, **kwargs):
@@ -41,6 +89,7 @@ def test_encode_invokes_ffmpeg_with_correct_args(monkeypatch, tmp_path: Path) ->
         proc.stderr.read = MagicMock(return_value=b"")
         return proc
 
+    monkeypatch.setitem(sys.modules, "imageio_ffmpeg", None)
     monkeypatch.setattr(subprocess, "Popen", fake_popen)
     monkeypatch.setattr("shutil.which", lambda name: "/usr/bin/ffmpeg")
 
@@ -59,6 +108,8 @@ def test_encode_invokes_ffmpeg_with_correct_args(monkeypatch, tmp_path: Path) ->
 
 
 def test_encode_raises_on_nonzero_return(monkeypatch, tmp_path: Path) -> None:
+    import sys
+
     def fake_popen(cmd, *args, **kwargs):
         proc = MagicMock()
         proc.stdin = MagicMock()
@@ -67,6 +118,7 @@ def test_encode_raises_on_nonzero_return(monkeypatch, tmp_path: Path) -> None:
         proc.stderr.read = MagicMock(return_value=b"ffmpeg failed")
         return proc
 
+    monkeypatch.setitem(sys.modules, "imageio_ffmpeg", None)
     monkeypatch.setattr(subprocess, "Popen", fake_popen)
     monkeypatch.setattr("shutil.which", lambda name: "/usr/bin/ffmpeg")
 
@@ -81,6 +133,8 @@ def test_encode_rejects_empty_frame_list(tmp_path: Path) -> None:
 
 
 def test_encode_libx264_args(monkeypatch, tmp_path: Path) -> None:
+    import sys
+
     captured: dict = {}
 
     def fake_popen(cmd, *args, **kwargs):
@@ -92,6 +146,7 @@ def test_encode_libx264_args(monkeypatch, tmp_path: Path) -> None:
         proc.stderr.read = MagicMock(return_value=b"")
         return proc
 
+    monkeypatch.setitem(sys.modules, "imageio_ffmpeg", None)
     monkeypatch.setattr(subprocess, "Popen", fake_popen)
     monkeypatch.setattr("shutil.which", lambda name: "/usr/bin/ffmpeg")
     encode(_frames(), fps=2, out_path=tmp_path / "x.mp4", codec="libx264")
@@ -102,6 +157,8 @@ def test_encode_libx264_args(monkeypatch, tmp_path: Path) -> None:
 
 
 def test_encode_mpeg4_args(monkeypatch, tmp_path: Path) -> None:
+    import sys
+
     captured: dict = {}
 
     def fake_popen(cmd, *args, **kwargs):
@@ -113,6 +170,7 @@ def test_encode_mpeg4_args(monkeypatch, tmp_path: Path) -> None:
         proc.stderr.read = MagicMock(return_value=b"")
         return proc
 
+    monkeypatch.setitem(sys.modules, "imageio_ffmpeg", None)
     monkeypatch.setattr(subprocess, "Popen", fake_popen)
     monkeypatch.setattr("shutil.which", lambda name: "/usr/bin/ffmpeg")
     encode(_frames(), fps=2, out_path=tmp_path / "x.mp4", codec="mpeg4")
@@ -125,6 +183,8 @@ def test_encode_mpeg4_args(monkeypatch, tmp_path: Path) -> None:
 
 
 def test_encode_gif_args(monkeypatch, tmp_path: Path) -> None:
+    import sys
+
     captured: dict = {}
 
     def fake_popen(cmd, *args, **kwargs):
@@ -136,6 +196,7 @@ def test_encode_gif_args(monkeypatch, tmp_path: Path) -> None:
         proc.stderr.read = MagicMock(return_value=b"")
         return proc
 
+    monkeypatch.setitem(sys.modules, "imageio_ffmpeg", None)
     monkeypatch.setattr(subprocess, "Popen", fake_popen)
     monkeypatch.setattr("shutil.which", lambda name: "/usr/bin/ffmpeg")
     encode(_frames(), fps=2, out_path=tmp_path / "x.gif", codec="gif")

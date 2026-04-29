@@ -13,5 +13,6 @@ htmlcov/
 .ruff_cache/
 .mypy_cache/
 *.mp4
+!examples/output/*.mp4
 *.mean.nii.gz
 .DS_Store
